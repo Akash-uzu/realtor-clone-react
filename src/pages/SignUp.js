@@ -1,14 +1,18 @@
 import React from "react";
 import { useState } from "react";
 import { RiEyeCloseFill, RiEyeFill } from "react-icons/ri";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import OAuth from "../components/OAuth";
-
+import {createUserWithEmailAndPassword, getAuth,updateProfile} from "firebase/auth"
+import { db } from "../firebase";
+import { serverTimestamp, setDoc,doc } from "firebase/firestore";
+import {toast} from "react-toastify"
 const SignUp = () => {
-  const [name,setName] = useState("")
+  const [name,setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const navigate = useNavigate()
   const nameChangeHandler=(e)=>{
     setName(e.target.value)
   }
@@ -18,6 +22,34 @@ const SignUp = () => {
   const passwordChangeHandler = (e) => {
     setPassword(e.target.value);
   };
+  async function onSubmitHandler(e) {
+    e.preventDefault();
+    try {
+      const auth = getAuth()
+      console.log(auth)
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,email,password
+      )
+      updateProfile(auth.currentUser,{
+        displayName: name
+      })
+      const user= userCredential.user
+      const formData = {
+        name,email,password
+      }
+      delete formData.password
+      formData.timestamp= serverTimestamp();
+
+      await setDoc(doc(db, "users", user.uid),formData)
+      toast.success("Sign was successful")      
+      navigate('/')
+    } catch (error) {
+      toast.error('Something went wrong')
+    }
+
+
+
+  }
   return (
     <section>
       <h1 className="text-3xl text-center mt-6 font-bold">Sign up</h1>
@@ -73,7 +105,7 @@ const SignUp = () => {
               </p>
             </div>
           </form>
-          <button className="w-full bg-blue-600 text-white px-7 py-3 text-sm font-medium uppercase rounded shadow-md hover:bg-blue-700 transition duration-200 ease-in-out hover:shadow-lg active:bg-blue-800" type="submit">Sign up </button>
+          <button className="w-full bg-blue-600 text-white px-7 py-3 text-sm font-medium uppercase rounded shadow-md hover:bg-blue-700 transition duration-200 ease-in-out hover:shadow-lg active:bg-blue-800" onClick={onSubmitHandler}>Sign up </button>
           <div className="my-4">
             <p className="text-center font-semibold mx-4 text-gray-500">OR</p>
           </div>

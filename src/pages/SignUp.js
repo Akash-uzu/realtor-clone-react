@@ -41,7 +41,7 @@ const SignUp = () => {
       formData.timestamp= serverTimestamp();
 
       await setDoc(doc(db, "users", user.uid),formData)
-      toast.success("Sign was successful")      
+      toast.success("Sign-in was successful")      
       navigate('/')
     } catch (error) {
       toast.error('Something went wrong')

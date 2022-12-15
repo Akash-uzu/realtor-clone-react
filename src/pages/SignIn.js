@@ -1,19 +1,39 @@
 import React from "react";
 import { useState } from "react";
 import { RiEyeCloseFill, RiEyeFill } from "react-icons/ri";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import OAuth from "../components/OAuth";
+import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
+import { toast } from "react-toastify";
+
+
 
 const SignIn = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const navigate = useNavigate();
   const emailChangeHandler = (e) => {
     setEmail(e.target.value);
   };
   const passwordChangeHandler = (e) => {
     setPassword(e.target.value);
   };
+  const onSignIn=async(e)=>{
+    e.preventDefault()
+    try{
+      const auth = getAuth()
+      const userCredential = await signInWithEmailAndPassword(auth,email,password)
+      console.log(userCredential)
+      if(userCredential.user){
+        navigate("/")
+      } 
+
+    }catch(error){
+      toast.error("Bad user Credentials")
+    }
+
+  }
   return (
     <section>
       <h1 className="text-3xl text-center mt-6 font-bold">Sign In</h1>
@@ -61,7 +81,7 @@ const SignIn = () => {
               </p>
             </div>
           </form>
-          <button className="w-full bg-blue-600 text-white px-7 py-3 text-sm font-medium uppercase rounded shadow-md hover:bg-blue-700 transition duration-200 ease-in-out hover:shadow-lg active:bg-blue-800" type="submit">Sign in </button>
+          <button onClick={onSignIn} className="w-full bg-blue-600 text-white px-7 py-3 text-sm font-medium uppercase rounded shadow-md hover:bg-blue-700 transition duration-200 ease-in-out hover:shadow-lg active:bg-blue-800" type="submit">Sign in </button>
           <div className="my-4">
             <p className="text-center font-semibold mx-4 text-gray-500">OR</p>
           </div>

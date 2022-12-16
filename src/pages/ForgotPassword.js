@@ -1,14 +1,30 @@
+import { sendPasswordResetEmail } from "firebase/auth";
 import React from "react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { toast } from "react-toastify";
 import OAuth from "../components/OAuth";
+import { getAuth } from "firebase/auth";
+import { useNavigate } from "react-router-dom";
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState("");
-  
+  const navigate = useNavigate();
   const emailChangeHandler = (e) => {
     setEmail(e.target.value);
   };
+  const onSubmit=async(e)=>{
+    e.preventDefault();
+    try {
+      const auth = getAuth()
+      await sendPasswordResetEmail(auth,email)
+      toast.success("Email was sent")
+      navigate('/')
+    } catch (error) {
+      toast.error("Could not send reset password")
+    }
+    
+  }
   
   return (
     <section>
@@ -42,7 +58,7 @@ const ForgotPassword = () => {
               
             </div>
           </form>
-          <button className="w-full bg-blue-600 text-white px-7 py-3 text-sm font-medium uppercase rounded shadow-md hover:bg-blue-700 transition duration-200 ease-in-out hover:shadow-lg active:bg-blue-800" type="submit">Send Password Reset Link </button>
+          <button onClick={onSubmit} className="w-full bg-blue-600 text-white px-7 py-3 text-sm font-medium uppercase rounded shadow-md hover:bg-blue-700 transition duration-200 ease-in-out hover:shadow-lg active:bg-blue-800" type="submit">Send Password Reset Link </button>
           <div className="my-4">
             <p className="text-center font-semibold mx-4 text-gray-500">OR</p>
           </div>
